@@ -8,7 +8,7 @@ api = Api(app)
 		
     
 
-api.add_resource(Video, "/video/<int:video_id>")
+api.add_resource(Video, "/video/")
 
 if __name__ == "__main__":
 	app.run(debug=True)
