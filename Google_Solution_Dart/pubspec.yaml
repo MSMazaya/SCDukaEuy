@@ -25,7 +25,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   rflutter_alert: ^1.0.3
   image_form_field: ^0.1.0
-  image_picker: ^0.6.6+4
+  image_picker: ^0.6.7
+  http: ^0.12.1
 
 dev_dependencies:
   flutter_test:

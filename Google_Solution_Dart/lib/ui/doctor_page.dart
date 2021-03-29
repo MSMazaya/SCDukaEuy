@@ -1,9 +1,26 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:foody/ui/home_page.dart';
+import 'package:http/http.dart' as http;
 import 'package:foody/widgets/common_widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+
+Future<Map<String, dynamic>> fetchAlbum() async {
+  final response =
+      await http.get(Uri.https('jsonplaceholder.typicode.com', 'albums/1'));
+
+  if (response.statusCode == 200) {
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    return json.decode(response.body);
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
+}
 
 class DoctorState extends StatefulWidget {
   @override
@@ -13,14 +30,26 @@ class DoctorState extends StatefulWidget {
 class _DoctorState extends State<DoctorState> {
   final double _borderRadius = 24;
   final _formKey = GlobalKey<FormState>();
-
+  String _tes;
   var items = [
-    PlaceInfo('Marcellus Michael Herman K.', Color(0xffE9ECEB), Color(0xffA9A9A9), 4.4, 'Jl. Dr. Cipto, Semarang', '087700154863'),
-    PlaceInfo('Muhammad Sulthan Mazaya', Color(0xffA9A9A9), Color(0xffE9ECEB), 3.7,
-        'Jl. Garut, Garut', '0890184984921'),
-    PlaceInfo('Daniel J.R. Silitonga', Color(0xffE9ECEB), Color(0xffA9A9A9), 4.5,
-        'Jl. Medan, Medan', '081888222990'),
+    PlaceInfo('Marcellus Michael Herman K.', Color(0xffE9ECEB),
+        Color(0xffA9A9A9), 4.4, 'Jl. Dr. Cipto, Semarang', '087700154863'),
+    PlaceInfo('Muhammad Sulthan Mazaya', Color(0xffA9A9A9), Color(0xffE9ECEB),
+        3.7, 'Jl. Garut, Garut', '0890184984921'),
+    PlaceInfo('Daniel J.R. Silitonga', Color(0xffE9ECEB), Color(0xffA9A9A9),
+        4.5, 'Jl. Medan, Medan', '081888222990'),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // start fetching
+    fetchAlbum().then((data) {
+      setState(() {
+        _tes = data['title'];
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,34 +68,30 @@ class _DoctorState extends State<DoctorState> {
           children: <Widget>[
             DrawerHeader(
               child: Text(
-                'Hi Doctor 1!',
-
+                'Hi 1!', // Disini jg boleh kalo mau
               ),
-
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
             ),
             ListTile(
-              title: Text('About'),
+              title: Text(_tes), // Dummy
               onTap: () {
                 // Update the state of the app.
                 // ...
               },
+            ),
+            ListTile(
+              title: Text('Us'),
+              onTap: () {},
             ),
             ListTile(
               title: Text('Help'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
+              onTap: () {},
             ),
             ListTile(
               title: Text('Contact Us'),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
+              onTap: () {},
             ),
           ],
         ),
@@ -102,8 +127,8 @@ class _DoctorState extends State<DoctorState> {
                     top: 0,
                     child: CustomPaint(
                       size: Size(150, 150),
-                      painter: CustomCardShapePainter(_borderRadius,
-                          Color(0xffFFFFFF), Color(0xffF2F3F4)),
+                      painter: CustomCardShapePainter(
+                          _borderRadius, Color(0xffFFFFFF), Color(0xffF2F3F4)),
                     ),
                   ),
                   Positioned.fill(
@@ -126,7 +151,6 @@ class _DoctorState extends State<DoctorState> {
                             ],
                           ),
                         ),
-
                         Expanded(
                           flex: 4,
                           child: Column(
@@ -182,26 +206,29 @@ class _DoctorState extends State<DoctorState> {
                               File _image;
 
                               Future getImage() async {
-                                var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+                                var image = await ImagePicker.pickImage(
+                                    source: ImageSource.gallery);
 
                                 setState(() {
                                   _image = image;
                                 });
                               }
-                              showDialog(
 
+                              showDialog(
                                 context: context,
                                 builder: (context) {
                                   return SimpleDialog(
                                     children: <Widget>[
                                       Padding(
-                                        padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                                        padding: EdgeInsets.only(
+                                            left: 10.0, right: 10.0),
                                         child: Row(
                                           children: <Widget>[
                                             Expanded(
                                               child: Text(
                                                 "Medical Check-Up",
-                                                style: TextStyle(fontSize: 20.0),
+                                                style:
+                                                    TextStyle(fontSize: 20.0),
                                               ),
                                             ),
                                             IconButton(
@@ -217,14 +244,13 @@ class _DoctorState extends State<DoctorState> {
                                       Padding(
                                         padding: EdgeInsets.all(10.0),
                                         child: Text(
-                                            'Nama Pasien : ${items[index].name}',
+                                          'Nama Pasien : ${items[index].name}',
                                         ),
                                       ),
-
                                       Padding(
                                         padding: EdgeInsets.all(10.0),
                                         child: Text(
-                                          "Keluhan : ",
+                                          "Keluhan : ", // Naruh Keluhan
                                         ),
                                       ),
                                       Padding(
@@ -234,28 +260,31 @@ class _DoctorState extends State<DoctorState> {
                                         ),
                                       ),
                                       Padding(
-                                        padding: EdgeInsets.only(left: 0, right: 0),
-                                        child: new Image.asset('sample1.jpg')
-                                      ),
+                                          padding: EdgeInsets.only(
+                                              left: 0, right: 0),
+                                          child:
+                                              new Image.asset('sample1.jpg')),
                                       Padding(
                                         padding: EdgeInsets.all(10.0),
                                         child: Text(
-                                          "Hasil Diagonsa : ",
+                                          "Hasil Diagonsa : ", // Naruh Diagnosa
                                         ),
                                       ),
                                       Padding(
                                         padding: EdgeInsets.all(10.0),
                                         child: Text(
-                                          "Confidence Rate : ",
+                                          "Confidence Rate : ", // Naruh Confidence Rate
                                         ),
                                       ),
                                       Padding(
-                                        padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0),
+                                        padding: EdgeInsets.fromLTRB(
+                                            10.0, 10.0, 10.0, 0),
                                         child: RaisedButton(
                                           color: Colors.blue,
                                           child: Text(
                                             "Close",
-                                            style: TextStyle(color: Colors.white),
+                                            style:
+                                                TextStyle(color: Colors.white),
                                           ),
                                           onPressed: () {
                                             Navigator.of(context).pop();
@@ -336,11 +365,10 @@ class CustomCardShapePainter extends CustomPainter {
     return true;
   }
 }
+
 Widget _buildPopupDialog(BuildContext context) {
   final _formKey = GlobalKey<FormState>();
-  return new AlertDialog(
-
-  );
+  return new AlertDialog();
 }
 
 /* void _showSimpleDialog(context) {
